@@ -4,7 +4,6 @@ using ISmartConnect.Helpers;
 using ISmartConnect.Module.Contracts;
 using ISmartConnect.Module.Intercom;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
