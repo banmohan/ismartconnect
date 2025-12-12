@@ -1,0 +1,6 @@
+@ISmartConnect_HostAddress = http://localhost:5167
+
+GET {{ISmartConnect_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
