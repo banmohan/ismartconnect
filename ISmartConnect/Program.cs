@@ -1,9 +1,7 @@
-using System.Net;
 using ISmartConnect;
 using ISmartConnect.Helpers;
 using ISmartConnect.Module.Contracts;
 using ISmartConnect.Module.Intercom;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,26 +37,26 @@ builder.Services.AddScoped<AccountIntercomService>();
 
 var app = builder.Build();
 
-app.UseExceptionHandler(err =>
-{
-    //var isDevelopment = app.Environment.IsDevelopment();
-    err.Run(async context =>
-    {
-        var exception = context.Features.Get<IExceptionHandlerFeature>() ??
-                        throw new Exception("Something went wrong");
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsJsonAsync(new
-        {
-            Message = exception.Error.InnerException?.Message ?? exception.Error.Message,
-            ErrorCode = HttpStatusCode.InternalServerError
-        });
-
-        // Log.Write(LogEventLevel.Error, exception.Error, "Error in {Endpoint}",
-        //     exception.Endpoint?.ToString() ?? "UNKNOWN");
-    });
-});
+// app.UseExceptionHandler(err =>
+// {
+//     //var isDevelopment = app.Environment.IsDevelopment();
+//     err.Run(async context =>
+//     {
+//         var exception = context.Features.Get<IExceptionHandlerFeature>() ??
+//                         throw new Exception("Something went wrong");
+//
+//         context.Response.ContentType = "application/json";
+//         context.Response.StatusCode = 500;
+//         await context.Response.WriteAsJsonAsync(new
+//         {
+//             Message = exception.Error.InnerException?.Message ?? exception.Error.Message,
+//             ErrorCode = HttpStatusCode.InternalServerError
+//         });
+//
+//         // Log.Write(LogEventLevel.Error, exception.Error, "Error in {Endpoint}",
+//         //     exception.Endpoint?.ToString() ?? "UNKNOWN");
+//     });
+// });
 
 app.UseSwagger();
 app.UseSwaggerUI(o =>
@@ -69,8 +67,6 @@ app.UseSwaggerUI(o =>
 // {
 app.MapOpenApi();
 // }
-
-app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseCors();
