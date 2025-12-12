@@ -62,5 +62,5 @@ app.MapOpenApi();
 
 app.UseHttpsRedirection();
 
-
+app.MapGet("/", () => $"Server is running!");
 app.Run();
