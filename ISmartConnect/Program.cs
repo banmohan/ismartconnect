@@ -4,10 +4,16 @@ using ISmartConnect.Helpers;
 using ISmartConnect.Module.Contracts;
 using ISmartConnect.Module.Intercom;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v2", new OpenApiInfo { Title = "ISmart Connect", Version = "v2" });
+});
 // builder.Services.AddSwaggerGen(o =>
 // {
 //     o.MapType<DateOnly>(() => new OpenApiSchema
@@ -18,7 +24,7 @@ builder.Services.AddOpenApi();
 //     });
 //     o.SwaggerDoc("v2", new OpenApiInfo { Title = "ISmart Connect", Version = "v1" });
 // });
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.AssignDefaultOptions());
 
@@ -54,6 +60,11 @@ app.UseExceptionHandler(err =>
     });
 });
 
+app.UseSwagger();
+app.UseSwaggerUI(o =>
+{
+    o.SwaggerEndpoint("v2/swagger.json", "Akash Api");
+});
 // if (app.Environment.IsDevelopment())
 // {
 app.MapOpenApi();
@@ -61,5 +72,9 @@ app.MapOpenApi();
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+app.UseCors();
+
 app.MapGet("/", () => $"Server is running!");
+app.MapControllers();
 app.Run();

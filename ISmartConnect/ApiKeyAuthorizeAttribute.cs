@@ -9,7 +9,7 @@ public class ApiKeyAuthorizeAttribute : Attribute, IAuthorizationFilter
     public void OnAuthorization(AuthorizationFilterContext context)
     {
         var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>()!;
-        var requestKey = context.HttpContext.Request.Headers["Authorization"].ToString();
+        var requestKey = context.HttpContext.Request.Headers["x-api-key"].ToString();
         var tenant = context.HttpContext.Request.Headers["tenant"].ToString();
         var requestingClient = configuration[$"AccessKeys:{requestKey}"];
         
