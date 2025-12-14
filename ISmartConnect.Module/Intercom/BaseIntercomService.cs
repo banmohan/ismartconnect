@@ -140,18 +140,18 @@ public class BaseIntercomService
 
     private static async Task<T> DefaultHandlerDelegate<T>(HttpResponseMessage responseMessage)
     {
+        var error = await responseMessage.Content.ReadFromJsonAsync<ErrorModel>();
         switch (responseMessage.StatusCode)
         {
             case HttpStatusCode.OK:
                 var model = await responseMessage.Content.ReadFromJsonAsync<T>();
                 return model ?? throw new InvalidOperationException("Cannot parse the json value to model");
             case HttpStatusCode.InternalServerError:
-                var error = await responseMessage.Content.ReadFromJsonAsync<ErrorModel>();
-                throw new MicroserviceRequestException(500, error?.Message);
+                throw new MicroserviceRequestException(500, error?.Error);
             case HttpStatusCode.BadGateway:
                 throw new MicroserviceRequestException(502, responseMessage.ReasonPhrase);
             case HttpStatusCode.BadRequest:
-                throw new MicroserviceRequestException(400, await responseMessage.Content.ReadAsStringAsync());
+                throw new MicroserviceRequestException(400, error?.Error);
             case HttpStatusCode.Unauthorized:
                 throw new MicroserviceRequestException(401, "Unauthorized");
             case HttpStatusCode.Continue:
