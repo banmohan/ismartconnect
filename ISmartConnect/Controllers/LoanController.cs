@@ -13,35 +13,43 @@ public class LoanController(AccountIntercomService accountIntercom) : Controller
     public async Task<ActionResult<ResLoanDetails>> LoanDetail(ReqLoanDetail req)
     {
         var res = await accountIntercom.LoanDetailAsync(req);
-                return Ok(new
+        return Ok(new
         {
-            res,
+            res.BranchId,
+            res.DueInterest,
+            res.IssuedOn,
+            res.DueInstallment,
+            res.DueFine,
+            res.Balance,
+            res.DisbursedAmt,
+            res.AccountNumber,
+            res.InterestRate,
+            res.MaturesOn,
+            res.MemberCode,
+            res.Product,
             IsoResponseCode = "00"
         });
-
     }
 
     [HttpPost("loan-statement")]
     public async Task<ActionResult<IEnumerable<ResLoanStatement>>> LoanStatement(ReqLoanStatement req)
     {
         var res = await accountIntercom.LoanStatementAsync(req);
-                return Ok(new
+        return Ok(new
         {
-            res,
+            StatementList = res,
             IsoResponseCode = "00"
         });
-
     }
 
     [HttpPost("loan-schedule")]
     public async Task<ActionResult<IEnumerable<ResLoanSchedule>>> LoanSchedule(ReqAccount req)
     {
         var res = await accountIntercom.LoanScheduleAsync(req);
-                return Ok(new
+        return Ok(new
         {
-            res,
+            Schedules = res,
             IsoResponseCode = "00"
         });
-
     }
 }

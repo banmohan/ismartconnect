@@ -15,7 +15,8 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.BalanceEnquiryAsync(req);
         return Ok(new
         {
-            res,
+            res.AvailableBalance,
+            res.LedgerBalance,
             IsoResponseCode = "00"
         });
     }
@@ -26,7 +27,8 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.MiniStatementAsync(req);
         return Ok(new
         {
-            res,
+            res.AvailableBalance,
+            StatementList = res.Data,
             IsoResponseCode = "00"
         });
     }
@@ -37,7 +39,7 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.FullStatementAsync(req);
         return Ok(new
         {
-            res,
+            StatementList = res,
             IsoResponseCode = "00"
         });
     }
@@ -48,7 +50,7 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.FundTransferAsync(req);
         return Ok(new
         {
-            res,
+            res.TranCode,
             IsoResponseCode = "00"
         });
     }
@@ -59,7 +61,7 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.ReversalAsync(req);
         return Ok(new
         {
-            res,
+            req.TranCode,
             IsoResponseCode = "00"
         });
     }
@@ -70,7 +72,23 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.AccValidateAsync(req);
         return Ok(new
         {
-            res,
+            res.AvailableBalance,
+            res.AccountType,
+            res.AccruedInterest,
+            res.AccStatus,
+            res.Address,
+            res.BranchId,
+            res.CustomerCode,
+            res.CustomerName,
+            res.DateOfBirth,
+            res.Gender,
+            res.IdIssueDate,
+            res.IdIssuePlace,
+            res.IdNumber,
+            res.InterestRate,
+            res.IdType,
+            res.MinBalance,
+            res.MobileNumber,
             IsoResponseCode = "00"
         });
     }
@@ -81,7 +99,9 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.AllAccountAsync(account);
         return Ok(new
         {
-            res,
+            res.Deposit,
+            res.Loan,
+            res.Share,
             IsoResponseCode = "00"
         });
     }
