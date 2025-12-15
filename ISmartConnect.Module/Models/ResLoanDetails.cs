@@ -35,8 +35,8 @@ public class ReqLoanDetail : ReqAccount
 
 public class ResLoanStatement
 {
-    public DateTime TranDate { get; set; }
-    public DateTime InterestDate { get; set; }
+    public DateOnly TranDate { get; set; }
+    public DateOnly InterestDate { get; set; }
     public string? Reference { get; set; }
     public decimal IssueAmount { get; set; }
     public decimal Payment { get; set; }

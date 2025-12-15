@@ -2,6 +2,6 @@ namespace ISmartConnect.Module.Models;
 
 public class ReqLoanStatement : ReqLoanDetail
 {
-    public DateTime FromDate { get; set; }
-    public DateTime ToDate { get; set; }
+    public DateOnly FromDate { get; set; }
+    public DateOnly ToDate { get; set; }
 }
