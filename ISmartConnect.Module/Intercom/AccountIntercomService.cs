@@ -49,9 +49,9 @@ public class AccountIntercomService(IMicroServiceMeta microServiceMeta, IUserMet
         return await Post<ResAccountValidation, ReqAccount>(url, model);
     }
 
-    public async Task<ResAllAccount> AllAccountAsync(string accountNumber)
+    public async Task<ResAllAccount> AllAccountAsync(long memberId)
     {
-        var url = $"api/mbank/all-account/{accountNumber}";
+        var url = $"api/mbank/all-account/{memberId}";
         return await Get<ResAllAccount>(url);
     }
 

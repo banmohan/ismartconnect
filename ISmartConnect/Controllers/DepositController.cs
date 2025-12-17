@@ -93,10 +93,10 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         });
     }
 
-    [HttpGet("all-account/{account}")]
-    public async Task<ActionResult<ResAllAccount>> AllAccount(string account)
+    [HttpGet("all-account/{memberId}")]
+    public async Task<ActionResult<ResAllAccount>> AllAccount(long memberId)
     {
-        var res = await accountIntercom.AllAccountAsync(account);
+        var res = await accountIntercom.AllAccountAsync(memberId);
         return Ok(new
         {
             res.Deposit,
