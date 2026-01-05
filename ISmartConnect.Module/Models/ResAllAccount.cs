@@ -21,6 +21,7 @@ public class DepositAcc
     public decimal IntRate { get; set; }
     public decimal AccruedInterest { get; set; }
     public decimal Balance { get; set; }
+    public decimal? MinBalance { get; set; }
 }
 
 public class LoanAcc
