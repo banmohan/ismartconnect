@@ -89,6 +89,12 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
             res.IdType,
             res.MinBalance,
             res.MobileNumber,
+            res.Email,
+            res.FathersName,
+            res.MothersName,
+            res.GrandFathersName,
+            res.SpouseName,
+            res.Occupation,
             IsoResponseCode = "00"
         });
     }

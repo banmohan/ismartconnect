@@ -19,4 +19,10 @@ public class ResAccountValidation
     public string? IdNumber { get; set; }
     public string? IdIssuePlace { get; set; }
     public string? IdIssueDate { get; set; }
+    public string? Email { get; set; }
+    public string? Occupation { get; set; }
+    public string? FathersName { get; set; }
+    public string? MothersName { get; set; }
+    public string? GrandFathersName { get; set; }
+    public string? SpouseName { get; set; }
 }
