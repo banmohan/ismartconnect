@@ -38,6 +38,7 @@ public class LoanAcc
     public string IssuedOn { get; set; }
     public string MaturesOn { get; set; }
     public string Product { get; set; }
+    public string AccountType { get; set; }
 }
 
 public class ShareAcc
@@ -46,5 +47,7 @@ public class ShareAcc
     public string AccountNumber { get; set; }
     public string OpenDate { get; set; }
     public decimal Balance { get; set; }
+    public string Product { get; set; }
+    public string AccountType { get; set; }
     // public List<int> KittaNumber { get; set; }
 }
