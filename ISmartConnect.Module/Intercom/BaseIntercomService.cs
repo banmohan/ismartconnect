@@ -148,14 +148,14 @@ public class BaseIntercomService
             case HttpStatusCode.InternalServerError:
             {
                 var error = await responseMessage.Content.ReadFromJsonAsync<ErrorModel>();
-                throw new MicroserviceRequestException(500, error?.Error);
+                throw new MicroserviceRequestException(500, error?.Message);
             }
             case HttpStatusCode.BadGateway:
                 throw new MicroserviceRequestException(502, responseMessage.ReasonPhrase);
             case HttpStatusCode.BadRequest:
             {
                 var error = await responseMessage.Content.ReadFromJsonAsync<ErrorModel>();
-                throw new MicroserviceRequestException(400, error?.Error);
+                throw new MicroserviceRequestException(400, error?.Message);
             }
             case HttpStatusCode.Unauthorized:
                 throw new MicroserviceRequestException(401, "Unauthorized");
