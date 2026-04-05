@@ -64,6 +64,21 @@ app.UseExceptionHandler(err =>
             case "InsufficientFund":
                 isoResponseCode = "51";
                 break;
+            case "UnableToProcess":
+                isoResponseCode = "05";
+                break;
+            case "AccountDormant":
+                isoResponseCode = "52";
+                break;
+            case "AccountClosed":
+                isoResponseCode = "54";
+                break;
+            case "AccountRestricted":
+                isoResponseCode = "62";
+                break;
+            case "DuplicateReversal":
+                isoResponseCode = "98";
+                break;
         }
 
         await context.Response.WriteAsJsonAsync(new
