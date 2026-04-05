@@ -55,6 +55,9 @@ app.UseExceptionHandler(err =>
             case "InvalidAccount":
                 isoResponseCode = "76";
                 break;
+            case "Branch is closed for EOD processing, Contact admin":
+                isoResponseCode = "39";
+                break;
             case "InvalidTransaction":
                 isoResponseCode = "30";
                 break;
