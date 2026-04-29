@@ -72,6 +72,7 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
         var res = await accountIntercom.AccValidateAsync(req);
         return Ok(new
         {
+            res.LedgerBalance,
             res.AvailableBalance,
             res.AccountType,
             res.AccruedInterest,

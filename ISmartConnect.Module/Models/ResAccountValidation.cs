@@ -14,6 +14,7 @@ public class ResAccountValidation
     public decimal InterestRate { get; set; }
     public string? AccountType { get; set; }
     public decimal AvailableBalance { get; set; }
+    public decimal LedgerBalance { get; set; }
     public decimal MinBalance { get; set; }
     public string? IdType { get; set; }
     public string? IdNumber { get; set; }
