@@ -58,6 +58,9 @@ app.UseExceptionHandler(err =>
             case "Branch is closed for EOD processing, Contact admin":
                 isoResponseCode = "39";
                 break;
+            case var msg when msg.Contains("EOD started", StringComparison.OrdinalIgnoreCase):
+                isoResponseCode = "39";
+                break;
             case "InvalidTransaction":
                 isoResponseCode = "30";
                 break;
