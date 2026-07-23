@@ -1,0 +1,39 @@
+@model ISmartConnect.Entities.RequestLog
+@{
+    ViewData["Title"] = "Log detail";
+}
+
+<div class="page-header">
+    <h1>Log detail</h1>
+    <a class="btn" asp-action="Index">Back</a>
+</div>
+
+<dl class="detail-grid">
+    <dt>Requested at</dt><dd>@Model.RequestedAt.UtcDateTime.ToString("O") UTC</dd>
+    <dt>Duration</dt><dd>@Model.DurationMs ms</dd>
+    <dt>Method</dt><dd>@Model.HttpMethod</dd>
+    <dt>Path</dt><dd class="mono">@Model.Path@Model.QueryString</dd>
+    <dt>Client</dt><dd>@(Model.ClientCode ?? "—")</dd>
+    <dt>IP</dt><dd>@(Model.IpAddress ?? "—")</dd>
+    <dt>Status</dt><dd>@Model.StatusCode @(Model.IsError ? "(error)" : "")</dd>
+</dl>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <h2>Error</h2>
+    <pre class="panel error-panel">@Model.ErrorMessage</pre>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ExceptionDetails))
+{
+    <h2>Exception</h2>
+    <pre class="panel">@Model.ExceptionDetails</pre>
+}
+
+<h2>Request headers</h2>
+<pre class="panel">@(Model.RequestHeaders ?? "—")</pre>
+
+<h2>Request body</h2>
+<pre class="panel">@(Model.RequestBody ?? "—")</pre>
+
+<h2>Response body</h2>
+<pre class="panel">@(Model.ResponseBody ?? "—")</pre>

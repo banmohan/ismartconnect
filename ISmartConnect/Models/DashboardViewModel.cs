@@ -11,11 +11,10 @@ public class DashboardViewModel
     public IReadOnlyList<string> ChartLabels { get; init; } = [];
     public IReadOnlyList<int> ChartValues { get; init; } = [];
 
-    public IReadOnlyList<DashboardClientRow> Clients { get; init; } = [];
+    public PagedResult<DashboardClientRow> Clients { get; init; } = new();
     public IReadOnlyList<DashboardAttentionItem> NeedsAttention { get; init; } = [];
     public IReadOnlyList<DashboardEndpointFailRow> TopFailingEndpoints { get; init; } = [];
     public IReadOnlyList<DashboardRecentError> RecentErrors { get; init; } = [];
-    public IReadOnlyList<DashboardClientRow> ZeroTrafficClients { get; init; } = [];
 }
 
 public class DashboardClientRow

@@ -9,9 +9,13 @@ namespace ISmartConnect.Controllers;
 [Authorize]
 public class DashboardController(AppDbContext db) : Controller
 {
+    private const int ClientsPageSize = 10;
+
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int clientPage = 1)
     {
+        if (clientPage < 1) clientPage = 1;
+
         var todayStart = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
         var todayEnd = todayStart.AddDays(1);
         var recentActivitySince = todayStart.AddDays(-7);
@@ -46,18 +50,33 @@ public class DashboardController(AppDbContext db) : Controller
             .ToListAsync();
 
         var clientRows = clients.Select(c =>
-        {
-            todayByClientMap.TryGetValue(c.Code, out var stats);
-            return new DashboardClientRow
             {
-                Id = c.Id,
-                Code = c.Code,
-                Name = c.Name,
-                IsActive = c.IsActive,
-                TodayRequestCount = stats?.Total ?? 0,
-                TodayFailedCount = stats?.Failed ?? 0
-            };
-        }).ToList();
+                todayByClientMap.TryGetValue(c.Code, out var stats);
+                return new DashboardClientRow
+                {
+                    Id = c.Id,
+                    Code = c.Code,
+                    Name = c.Name,
+                    IsActive = c.IsActive,
+                    TodayRequestCount = stats?.Total ?? 0,
+                    TodayFailedCount = stats?.Failed ?? 0
+                };
+            })
+            .OrderByDescending(c => c.TodayRequestCount)
+            .ThenBy(c => c.Code)
+            .ToList();
+
+        var clientTotal = clientRows.Count;
+        var clientTotalPages = ClientsPageSize <= 0
+            ? 0
+            : (int)Math.Ceiling(clientTotal / (double)ClientsPageSize);
+        if (clientTotalPages > 0 && clientPage > clientTotalPages)
+            clientPage = clientTotalPages;
+
+        var pagedClients = clientRows
+            .Skip((clientPage - 1) * ClientsPageSize)
+            .Take(ClientsPageSize)
+            .ToList();
 
         var chartSource = todayByClient
             .OrderByDescending(x => x.Total)
@@ -101,13 +120,16 @@ public class DashboardController(AppDbContext db) : Controller
             TodayAvgDurationMs = Math.Round(todayAvgDurationMs, 1),
             ChartLabels = chartSource.Select(x => x.Code).ToList(),
             ChartValues = chartSource.Select(x => x.Total).ToList(),
-            Clients = clientRows,
+            Clients = new PagedResult<DashboardClientRow>
+            {
+                Items = pagedClients,
+                TotalCount = clientTotal,
+                Page = clientPage,
+                PageSize = ClientsPageSize
+            },
             NeedsAttention = needsAttention,
             TopFailingEndpoints = topFailingEndpoints,
-            RecentErrors = recentErrors,
-            ZeroTrafficClients = clientRows
-                .Where(c => c.IsActive && c.TodayRequestCount == 0)
-                .ToList()
+            RecentErrors = recentErrors
         };
 
         return View(model);

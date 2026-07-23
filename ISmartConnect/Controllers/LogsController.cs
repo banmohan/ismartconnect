@@ -1,4 +1,5 @@
 using ISmartConnect.Data;
+using ISmartConnect.Entities;
 using ISmartConnect.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +10,26 @@ namespace ISmartConnect.Controllers;
 [Authorize]
 public class LogsController(AppDbContext db) : Controller
 {
+    private static readonly HashSet<string> AllowedSortBy = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "requested_at",
+        "duration_ms",
+        "status_code",
+        "path",
+        "client_code",
+        "http_method"
+    };
+
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] LogFilterViewModel filter)
     {
         if (filter.Page < 1) filter.Page = 1;
         if (filter.PageSize is < 1 or > 100) filter.PageSize = 25;
+        if (string.IsNullOrWhiteSpace(filter.SortBy) || !AllowedSortBy.Contains(filter.SortBy))
+            filter.SortBy = "requested_at";
+        filter.SortDir = string.Equals(filter.SortDir, "asc", StringComparison.OrdinalIgnoreCase)
+            ? "asc"
+            : "desc";
 
         var query = db.RequestLogs.AsNoTracking().AsQueryable();
 
@@ -48,9 +64,10 @@ public class LogsController(AppDbContext db) : Controller
                 (l.ErrorMessage != null && l.ErrorMessage.Contains(term)));
         }
 
+        query = ApplySort(query, filter.SortBy, filter.SortDir);
+
         var total = await query.CountAsync();
         var items = await query
-            .OrderByDescending(l => l.RequestedAt)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToListAsync();
@@ -61,7 +78,7 @@ public class LogsController(AppDbContext db) : Controller
             .Select(c => c.Code)
             .ToListAsync();
 
-        return View(new PagedResult<Entities.RequestLog>
+        return View(new PagedResult<RequestLog>
         {
             Items = items,
             TotalCount = total,
@@ -78,6 +95,26 @@ public class LogsController(AppDbContext db) : Controller
             return NotFound();
 
         return View(log);
+    }
+
+    private static IQueryable<RequestLog> ApplySort(IQueryable<RequestLog> query, string sortBy, string sortDir)
+    {
+        var asc = sortDir == "asc";
+        return sortBy.ToLowerInvariant() switch
+        {
+            "duration_ms" => asc ? query.OrderBy(l => l.DurationMs) : query.OrderByDescending(l => l.DurationMs),
+            "status_code" => asc ? query.OrderBy(l => l.StatusCode) : query.OrderByDescending(l => l.StatusCode),
+            "path" => asc ? query.OrderBy(l => l.Path) : query.OrderByDescending(l => l.Path),
+            "client_code" => asc
+                ? query.OrderBy(l => l.ClientCode)
+                : query.OrderByDescending(l => l.ClientCode),
+            "http_method" => asc
+                ? query.OrderBy(l => l.HttpMethod)
+                : query.OrderByDescending(l => l.HttpMethod),
+            _ => asc
+                ? query.OrderBy(l => l.RequestedAt)
+                : query.OrderByDescending(l => l.RequestedAt)
+        };
     }
 
     private static DateTimeOffset ToUtc(DateTimeOffset value) =>

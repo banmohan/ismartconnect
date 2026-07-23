@@ -82,6 +82,7 @@
 <section class="dashboard-bottom">
     <div class="dash-panel">
         <h2>Clients</h2>
+        <p class="muted">@Model.Clients.TotalCount client(s), sorted by today's request count</p>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -95,7 +96,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var client in Model.Clients)
+                @foreach (var client in Model.Clients.Items)
                 {
                     <tr>
                         <td>@client.Code</td>
@@ -111,6 +112,17 @@
                 </tbody>
             </table>
         </div>
+        @if (Model.Clients.TotalPages > 1)
+        {
+            <div class="pagination">
+                @for (var p = 1; p <= Model.Clients.TotalPages; p++)
+                {
+                    <a class="@(p == Model.Clients.Page ? "active" : null)"
+                       asp-action="Index"
+                       asp-route-clientPage="@p">@p</a>
+                }
+            </div>
+        }
     </div>
 
     <div class="dash-side-stack">
@@ -141,23 +153,6 @@
                         </tbody>
                     </table>
                 </div>
-            }
-        </div>
-
-        <div class="dash-panel">
-            <h2>Zero traffic today</h2>
-            @if (Model.ZeroTrafficClients.Count == 0)
-            {
-                <p class="muted">All active clients have traffic today.</p>
-            }
-            else
-            {
-                <ul class="plain-list">
-                    @foreach (var client in Model.ZeroTrafficClients)
-                    {
-                        <li><strong>@client.Code</strong> <span class="muted">@client.Name</span></li>
-                    }
-                </ul>
             }
         </div>
 
