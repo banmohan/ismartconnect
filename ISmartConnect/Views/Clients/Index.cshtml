@@ -1,0 +1,39 @@
+@model IReadOnlyList<ISmartConnect.Entities.Client>
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<div class="page-header">
+    <h1>Clients</h1>
+    <a class="btn primary" asp-action="Create">Add client</a>
+</div>
+
+<p class="muted">API callers send the API key in the <code>Authorization</code> header and the client code in the <code>tenant</code> header. Cache refreshes on save (no app restart).</p>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>API key</th>
+            <th>Active</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var client in Model)
+        {
+            <tr>
+                <td>@client.Code</td>
+                <td>@client.Name</td>
+                <td class="mono">@client.ApiKey</td>
+                <td>@(client.IsActive ? "Yes" : "No")</td>
+                <td>@client.UpdatedAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                <td><a asp-action="Edit" asp-route-id="@client.Id">Edit</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

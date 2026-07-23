@@ -1,0 +1,35 @@
+@model IReadOnlyList<ISmartConnect.Entities.User>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="page-header">
+    <h1>Users</h1>
+    <a class="btn primary" asp-action="Create">Add user</a>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Display name</th>
+            <th>Active</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.DisplayName</td>
+                <td>@(user.IsActive ? "Yes" : "No")</td>
+                <td>@user.UpdatedAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                <td><a asp-action="Edit" asp-route-id="@user.Id">Edit</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

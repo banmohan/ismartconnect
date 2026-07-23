@@ -1,9 +1,16 @@
 using System.Net;
 using ISmartConnect;
+using ISmartConnect.Data;
+using ISmartConnect.Entities;
 using ISmartConnect.Helpers;
+using ISmartConnect.Middleware;
 using ISmartConnect.Module.Contracts;
 using ISmartConnect.Module.Intercom;
+using ISmartConnect.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,16 +21,7 @@ builder.Services.AddSwaggerGen(o =>
 {
     o.SwaggerDoc("v2", new OpenApiInfo { Title = "ISmart Connect", Version = "v2" });
 });
-// builder.Services.AddSwaggerGen(o =>
-// {
-//     o.MapType<DateOnly>(() => new OpenApiSchema
-//     {
-//         Type = JsonSchemaType.String,
-//         Format = "date",
-//         Example = new OpenApiString(DateTime.Today.ToString("yyyy-MM-dd")) // Optional: provides an example format
-//     });
-//     o.SwaggerDoc("v2", new OpenApiInfo { Title = "ISmart Connect", Version = "v1" });
-// });
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.AssignDefaultOptions());
@@ -31,17 +29,33 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy =>
     policy.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(_ => true).AllowCredentials()));
 
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .UseSnakeCaseNamingConvention());
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/Login";
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IClientAccessKeyStore, ClientAccessKeyStore>();
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IUserMeta, UserMeta>();
 builder.Services.AddScoped<IMicroServiceMeta, MicroserviceMeta>();
 builder.Services.AddScoped<AccountIntercomService>();
 
-
 var app = builder.Build();
+
+await DbSeeder.MigrateAndSeedAsync(app.Services);
 
 app.UseExceptionHandler(err =>
 {
-    //var isDevelopment = app.Environment.IsDevelopment();
     err.Run(async context =>
     {
         var exception = context.Features.Get<IExceptionHandlerFeature>() ??
@@ -93,22 +107,23 @@ app.UseExceptionHandler(err =>
             ErrorCode = HttpStatusCode.InternalServerError,
             isoResponseCode
         });
-
-        // Log.Write(LogEventLevel.Error, exception.Error, "Error in {Endpoint}",
-        //     exception.Endpoint?.ToString() ?? "UNKNOWN");
     });
 });
 
 app.UseSwagger();
 app.UseSwaggerUI(o => { o.SwaggerEndpoint("v2/swagger.json", "Akash Api"); });
-// if (app.Environment.IsDevelopment())
-// {
 app.MapOpenApi();
-// }
 
+app.UseStaticFiles();
 app.UseRouting();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
-app.MapGet("/", () => $"Server is running!");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
 app.MapControllers();
 app.Run();
