@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · ISmart Connect</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<header class="topbar">
+    <div class="brand"><a asp-controller="Dashboard" asp-action="Index">ISmart Connect</a></div>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <nav class="nav">
+            <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <a asp-controller="Logs" asp-action="Index">Logs</a>
+            <a asp-controller="Clients" asp-action="Index">Clients</a>
+            <a asp-controller="Users" asp-action="Index">Users</a>
+        </nav>
+        <div class="user-area">
+            <span>@User.FindFirst("display_name")?.Value</span>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="link-btn">Logout</button>
+            </form>
+        </div>
+    }
+</header>
+<main class="container">
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+    @RenderBody()
+</main>
+</body>
+</html>

@@ -1,3 +1,4 @@
+using ISmartConnect.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -8,12 +9,12 @@ public class ApiKeyAuthorizeAttribute : Attribute, IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>()!;
+        var keyStore = context.HttpContext.RequestServices.GetRequiredService<IClientAccessKeyStore>();
         var requestKey = context.HttpContext.Request.Headers["Authorization"].ToString();
         var tenant = context.HttpContext.Request.Headers["tenant"].ToString();
-        var requestingClient = configuration[$"AccessKeys:{requestKey}"];
-        
-        if (string.IsNullOrWhiteSpace(requestingClient))
+
+        if (!keyStore.TryGetClientCode(requestKey, out var requestingClient) ||
+            string.IsNullOrWhiteSpace(requestingClient))
         {
             context.Result = new UnauthorizedResult();
             return;
@@ -24,7 +25,7 @@ public class ApiKeyAuthorizeAttribute : Attribute, IAuthorizationFilter
             context.Result = new BadRequestResult();
             return;
         }
-        
-        context.HttpContext.Items.Add("tenant", requestingClient);
+
+        context.HttpContext.Items["tenant"] = requestingClient;
     }
 }

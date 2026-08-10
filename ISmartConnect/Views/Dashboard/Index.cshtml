@@ -1,0 +1,226 @@
+@model ISmartConnect.Models.DashboardViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Dashboard";
+    var chartLabelsJson = JsonSerializer.Serialize(Model.ChartLabels);
+    var chartValuesJson = JsonSerializer.Serialize(Model.ChartValues);
+}
+
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="muted">UTC day starting @Model.TodayUtc.ToString("yyyy-MM-dd")</p>
+    </div>
+</div>
+
+<section class="kpi-row">
+    <div class="kpi-card">
+        <div class="kpi-label">Today's requests</div>
+        <div class="kpi-value">@Model.TodayRequestCount</div>
+    </div>
+    <div class="kpi-card @(Model.TodayFailedCount > 0 ? "kpi-danger" : null)">
+        <div class="kpi-label">Today's failed</div>
+        <div class="kpi-value">@Model.TodayFailedCount</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Success rate</div>
+        <div class="kpi-value">@Model.TodaySuccessRatePct.ToString("0.#")%</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Avg duration</div>
+        <div class="kpi-value">@Model.TodayAvgDurationMs.ToString("0.#") <span class="kpi-unit">ms</span></div>
+    </div>
+</section>
+
+<section class="dashboard-mid">
+    <div class="dash-panel">
+        <h2>Requests by client (today)</h2>
+        @if (Model.ChartLabels.Count == 0)
+        {
+            <p class="muted">No client traffic today.</p>
+        }
+        else
+        {
+            <div class="chart-wrap">
+                <canvas id="clientRequestChart" height="220"></canvas>
+            </div>
+        }
+    </div>
+    <div class="dash-panel">
+        <h2>Needs attention</h2>
+        @if (Model.NeedsAttention.Count == 0)
+        {
+            <p class="muted">No clients need attention.</p>
+        }
+        else
+        {
+            <ul class="attention-list">
+                @foreach (var item in Model.NeedsAttention)
+                {
+                    <li>
+                        <div class="attention-head">
+                            <strong>@item.ClientCode</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.ClientName))
+                            {
+                                <span class="muted">(@item.ClientName)</span>
+                            }
+                            <span class="badge danger">@item.ConsecutiveFailures consecutive failures</span>
+                        </div>
+                        <div class="mono muted">@item.Path</div>
+                        <div class="attention-error">@(item.ErrorMessage ?? "Error")</div>
+                        <div class="muted">@item.LastFailedAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+                        <a asp-controller="Logs" asp-action="Index"
+                           asp-route-ClientCode="@item.ClientCode"
+                           asp-route-IsError="true">View logs</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>
+
+<section class="dashboard-bottom">
+    <div class="dash-panel">
+        <h2>Clients</h2>
+        <p class="muted">@Model.Clients.TotalCount client(s), sorted by today's request count</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                    <th>Today</th>
+                    <th>Failed</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var client in Model.Clients.Items)
+                {
+                    <tr>
+                        <td>@client.Code</td>
+                        <td>@client.Name</td>
+                        <td>@(client.IsActive ? "Yes" : "No")</td>
+                        <td>@client.TodayRequestCount</td>
+                        <td>@client.TodayFailedCount</td>
+                        <td>
+                            <a asp-controller="Logs" asp-action="Index" asp-route-ClientCode="@client.Code">Logs</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if (Model.Clients.TotalPages > 1)
+        {
+            <div class="pagination">
+                @for (var p = 1; p <= Model.Clients.TotalPages; p++)
+                {
+                    <a class="@(p == Model.Clients.Page ? "active" : null)"
+                       asp-action="Index"
+                       asp-route-clientPage="@p">@p</a>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="dash-side-stack">
+        <div class="dash-panel">
+            <h2>Top failing endpoints (today)</h2>
+            @if (Model.TopFailingEndpoints.Count == 0)
+            {
+                <p class="muted">No failures today.</p>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Path</th>
+                            <th>Fails</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var row in Model.TopFailingEndpoints)
+                        {
+                            <tr>
+                                <td class="mono">@row.Path</td>
+                                <td>@row.FailCount</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="dash-panel">
+            <h2>Recent errors</h2>
+            @if (Model.RecentErrors.Count == 0)
+            {
+                <p class="muted">No recent errors.</p>
+            }
+            else
+            {
+                <ul class="recent-errors">
+                    @foreach (var err in Model.RecentErrors)
+                    {
+                        <li>
+                            <a asp-controller="Logs" asp-action="Details" asp-route-id="@err.Id">
+                                <span class="mono">@err.Path</span>
+                            </a>
+                            <div class="muted">
+                                @err.RequestedAt.UtcDateTime.ToString("HH:mm:ss") UTC
+                                · @(err.ClientCode ?? "—")
+                                · @err.StatusCode
+                            </div>
+                            <div class="attention-error">@(err.ErrorMessage ?? "Error")</div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</section>
+
+@if (Model.ChartLabels.Count > 0)
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const labels = @Html.Raw(chartLabelsJson);
+            const values = @Html.Raw(chartValuesJson);
+            const ctx = document.getElementById('clientRequestChart');
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Requests',
+                        data: values,
+                        backgroundColor: 'rgba(11, 110, 79, 0.75)',
+                        borderColor: 'rgba(11, 110, 79, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,35 @@
+@model ISmartConnect.Models.ClientFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit client" : "Add client";
+}
+
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn" asp-action="Index">Back</a>
+</div>
+
+<form method="post" class="form-card">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert error"></div>
+
+    <label asp-for="Code"></label>
+    <input asp-for="Code" />
+    <span class="muted">Must match the <code>tenant</code> request header.</span>
+    <span asp-validation-for="Code" class="field-error"></span>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" />
+    <span asp-validation-for="Name" class="field-error"></span>
+
+    <label asp-for="ApiKey"></label>
+    <input asp-for="ApiKey" class="mono" />
+    <span asp-validation-for="ApiKey" class="field-error"></span>
+
+    <label class="checkbox">
+        <input asp-for="IsActive" />
+        Active
+    </label>
+
+    <button type="submit" class="btn primary">Save</button>
+</form>

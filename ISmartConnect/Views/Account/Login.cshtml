@@ -1,0 +1,32 @@
+@model ISmartConnect.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login · ISmart Connect</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="login-page">
+<main class="login-card">
+    <h1>ISmart Connect</h1>
+    <p class="muted">Admin sign in</p>
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="ModelOnly" class="alert error"></div>
+        <label asp-for="Username"></label>
+        <input asp-for="Username" autofocus />
+        <span asp-validation-for="Username" class="field-error"></span>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password" class="field-error"></span>
+        <button type="submit" class="btn primary">Sign in</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,35 @@
+@model ISmartConnect.Models.UserFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit user" : "Add user";
+}
+
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn" asp-action="Index">Back</a>
+</div>
+
+<form method="post" class="form-card">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert error"></div>
+
+    <label asp-for="Username"></label>
+    <input asp-for="Username" />
+    <span asp-validation-for="Username" class="field-error"></span>
+
+    <label asp-for="DisplayName"></label>
+    <input asp-for="DisplayName" />
+    <span asp-validation-for="DisplayName" class="field-error"></span>
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" />
+    <span class="muted">@(isEdit ? "Leave blank to keep current password." : "Required for new users.")</span>
+    <span asp-validation-for="Password" class="field-error"></span>
+
+    <label class="checkbox">
+        <input asp-for="IsActive" />
+        Active
+    </label>
+
+    <button type="submit" class="btn primary">Save</button>
+</form>
