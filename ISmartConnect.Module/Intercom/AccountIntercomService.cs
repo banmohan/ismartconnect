@@ -51,7 +51,7 @@ public class AccountIntercomService(IMicroServiceMeta microServiceMeta, IUserMet
 
     public async Task<ResAllAccount> AllAccountAsync(long memberId)
     {
-        var url = $"api/mbank/all-account/{memberId}";
+        var url = $"api/mbank/all-account-ismart/{memberId}";
         return await Get<ResAllAccount>(url);
     }
 
