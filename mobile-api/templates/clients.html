@@ -8,8 +8,9 @@
     </div>
     {% if shell.admin %}<a class="primary button" href="/admin/clients/new">New client</a>{% endif %}
 </header>
+{% if error != "" %}<div class="alert">{{ error }}</div>{% endif %}
 {% if shell.admin %}
-<p class="hint">Each client is a provider. The API key stays on this page for admins. A key created earlier, when only a hash was stored, shows as unavailable until you regenerate it.</p>
+<p class="hint">Each client is a provider. The API key stays on this page for admins. A key created earlier, when only a hash was stored, shows as unavailable until you replace it from the client page.</p>
 {% else %}
 <p class="hint">Each client is a provider. API keys and client changes are limited to admins.</p>
 {% endif %}
@@ -46,7 +47,14 @@
         {% endif %}
         <td>{% if client.active %}Active{% else %}Disabled{% endif %}</td>
         <td>{{ client.updated }}</td>
-        {% if shell.admin %}<td><a href="/admin/clients/{{ client.id }}/edit">Edit</a></td>{% endif %}
+        {% if shell.admin %}
+        <td class="row-actions">
+            <a href="/admin/clients/{{ client.id }}">Edit</a>
+            <form method="post" action="/admin/clients/{{ client.id }}/rotate-key" onsubmit="return confirm('Replace the API key for {{ client.code }}? The current key will stop working.');">
+                <button class="linkish" type="submit">New key</button>
+            </form>
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
     </tbody>

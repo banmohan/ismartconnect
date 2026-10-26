@@ -9,11 +9,11 @@
     <a class="button" href="/admin/logs">Back to logs</a>
 </header>
 <section class="summary">
-    <div><span>When</span><strong>{{ when }}</strong></div>
-    <div><span>Client</span><strong>{{ client }}</strong></div>
     <div><span>Status</span><strong><span class="pill {{ status_class }}">{{ status }}</span></strong></div>
     <div><span>ISO</span><strong class="mono">{{ iso }}</strong></div>
     <div><span>Duration</span><strong class="{% if slow %}slow{% endif %}">{{ duration }}</strong></div>
+    <div><span>Client</span><strong>{{ client }}</strong></div>
+    <div><span>When</span><strong>{{ when }}</strong></div>
     <div><span>Request id</span><strong class="mono">{{ request_id }}</strong></div>
     <div><span>IP</span><strong>{{ ip }}</strong></div>
     {% if query != "" %}<div><span>Query</span><strong class="mono">{{ query }}</strong></div>{% endif %}
@@ -29,25 +29,44 @@
     </li>
     {% endfor %}
 </ol>
-<section class="split">
-    <article>
-        <h2>Request</h2>
-        <pre class="panel">{{ request_pretty }}</pre>
-        <details><summary>Raw</summary><pre class="panel">{{ request_raw }}</pre></details>
-    </article>
-    <article>
-        <h2>Response</h2>
-        <pre class="panel">{{ response_pretty }}</pre>
-        <details><summary>Raw</summary><pre class="panel">{{ response_raw }}</pre></details>
-    </article>
+<section class="bodies">
+    <input class="body-switch" type="radio" name="body-tab" id="pane-request" checked>
+    <input class="body-switch" type="radio" name="body-tab" id="pane-response">
+    <input class="body-switch" type="radio" name="body-tab" id="pane-upstream">
+    <div class="body-tabs">
+        <label for="pane-request">Request</label>
+        <label for="pane-response">Response</label>
+        <label for="pane-upstream">PremiumCBS</label>
+    </div>
+    <div class="panes">
+        <section class="pane pane-request">
+            <div class="pane-head">
+                <h2 class="pane-title">Request</h2>
+                <button type="button" class="button" data-copy="request-pretty">Copy</button>
+            </div>
+            <pre class="panel" id="request-pretty">{{ request_pretty }}</pre>
+            <details><summary>Raw</summary><pre class="panel">{{ request_raw }}</pre></details>
+        </section>
+        <section class="pane pane-response">
+            <div class="pane-head">
+                <h2 class="pane-title">Response</h2>
+                <button type="button" class="button" data-copy="response-pretty">Copy</button>
+            </div>
+            <pre class="panel" id="response-pretty">{{ response_pretty }}</pre>
+            <details><summary>Raw</summary><pre class="panel">{{ response_raw }}</pre></details>
+        </section>
+        <section class="pane pane-upstream">
+            <div class="pane-head">
+                <h2 class="pane-title">PremiumCBS</h2>
+                <button type="button" class="button" data-copy="upstream-pretty">Copy</button>
+            </div>
+            <pre class="panel" id="upstream-pretty">{{ upstream_pretty }}</pre>
+            <details><summary>Raw</summary><pre class="panel">{{ upstream_raw }}</pre></details>
+        </section>
+    </div>
 </section>
-<section>
-    <h2>PremiumCBS body</h2>
-    <pre class="panel">{{ upstream_pretty }}</pre>
-    <details><summary>Raw</summary><pre class="panel">{{ upstream_raw }}</pre></details>
-</section>
-<section>
-    <div class="section-head"><h2>Headers</h2></div>
+<section class="card compact">
+    <h2>Headers</h2>
     <table>
         <tbody>
         {% for header in headers %}
@@ -56,15 +75,15 @@
         </tbody>
     </table>
 </section>
-<section>
+<section class="card">
     <div class="section-head">
         <h2>Copy as curl</h2>
         <button type="button" class="button" data-copy="curl-box">Copy</button>
     </div>
-    <textarea id="curl-box" readonly>{{ curl }}</textarea>
+    <textarea id="curl-box" class="curl" readonly>{{ curl }}</textarea>
 </section>
 {% if related.len() > 0 %}
-<section>
+<section class="card compact">
     <h2>Related</h2>
     <div class="table-wrap">
         <table>

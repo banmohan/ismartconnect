@@ -4,48 +4,69 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}MobileApi{% endblock %}</title>
+    <script>
+        (function () {
+            var saved = localStorage.getItem("mobile-api-theme");
+            var theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link rel="stylesheet" href="/static/app.css">
-    <script src="/static/htmx.min.js" defer></script>
+    <script src="/static/htmx.min.js"></script>
 </head>
 <body>
 <div class="app">
     <aside class="sidebar">
-        <a class="brand" href="/admin">MobileApi</a>
-        <p class="brand-sub">Provider gateway</p>
+        <div>
+            <a class="brand" href="/admin">MobileApi</a>
+            <p class="brand-sub">Provider gateway</p>
+        </div>
         <nav>
-            <a class="nav-link{% if shell.nav == "dashboard" %} is-current{% endif %}" href="/admin">Dashboard</a>
-            <a class="nav-link{% if shell.nav == "logs" %} is-current{% endif %}" href="/admin/logs">Logs</a>
-            <a class="nav-link{% if shell.nav == "clients" %} is-current{% endif %}" href="/admin/clients">Clients</a>
-            <a class="nav-link{% if shell.nav == "users" %} is-current{% endif %}" href="/admin/users">Users</a>
+            <a class="nav-link {% if shell.nav == "dashboard" %}is-current{% endif %}" href="/admin">Dashboard</a>
+            <a class="nav-link {% if shell.nav == "logs" %}is-current{% endif %}" href="/admin/logs">Logs</a>
+            <a class="nav-link {% if shell.nav == "clients" %}is-current{% endif %}" href="/admin/clients">Clients</a>
+            <a class="nav-link {% if shell.nav == "users" %}is-current{% endif %}" href="/admin/users">Users</a>
         </nav>
         <div class="sidebar-foot">
-            <div class="who">{{ shell.display_name }}</div>
-            <div class="brand-sub">{{ shell.role_label }}</div>
-            <form method="post" action="/admin/logout">
-                <button type="submit" class="linkish">Log out</button>
-            </form>
+            <div>
+                <div class="who">{{ shell.display_name }}</div>
+                <div class="role">{{ shell.role_label }}</div>
+            </div>
+            <div class="side-actions">
+                <button type="button" class="theme-toggle" id="theme-toggle"></button>
+                <form method="post" action="/admin/logout"><button class="linkish" type="submit">Sign out</button></form>
+            </div>
         </div>
     </aside>
     <main class="content">
-        {% if shell.notice != "" %}
-        <div class="notice">{{ shell.notice }}</div>
-        {% endif %}
+        {% if shell.notice != "" %}<div class="notice">{{ shell.notice }}</div>{% endif %}
         {% block content %}{% endblock %}
     </main>
 </div>
 <script>
-document.addEventListener("click", function (event) {
-    var button = event.target.closest("[data-copy]");
-    if (!button) return;
-    var node = document.getElementById(button.getAttribute("data-copy"));
-    if (!node) return;
-    var text = node.value || node.textContent || "";
-    navigator.clipboard.writeText(text).then(function () {
-        var old = button.textContent;
-        button.textContent = "Copied";
-        setTimeout(function () { button.textContent = old; }, 1200);
-    });
-});
+    (function () {
+        var button = document.getElementById("theme-toggle");
+        function paint() {
+            button.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "Light" : "Dark";
+        }
+        button.addEventListener("click", function () {
+            var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("mobile-api-theme", next);
+            paint();
+        });
+        paint();
+        document.addEventListener("click", function (event) {
+            var trigger = event.target.closest("[data-copy]");
+            if (!trigger) return;
+            var node = document.getElementById(trigger.getAttribute("data-copy"));
+            if (!node) return;
+            navigator.clipboard.writeText(node.value || node.textContent || "");
+            var previous = trigger.textContent;
+            trigger.textContent = "Copied";
+            setTimeout(function () { trigger.textContent = previous; }, 1200);
+        });
+    })();
 </script>
 </body>
 </html>

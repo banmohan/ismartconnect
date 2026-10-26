@@ -4,10 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in · MobileApi</title>
+    <script>
+        (function () {
+            var saved = localStorage.getItem("mobile-api-theme");
+            var theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link rel="stylesheet" href="/static/app.css">
 </head>
 <body class="login-body">
 <main class="login-card">
+    <button type="button" class="theme-toggle" id="theme-toggle"></button>
     <p class="eyebrow">MobileApi</p>
     <h1>Sign in</h1>
     <p class="lede">Operations console for the provider gateway.</p>
@@ -20,5 +28,20 @@
         <button type="submit" class="primary">Continue</button>
     </form>
 </main>
+<script>
+    (function () {
+        var button = document.getElementById("theme-toggle");
+        function paint() {
+            button.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "Light" : "Dark";
+        }
+        button.addEventListener("click", function () {
+            var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("mobile-api-theme", next);
+            paint();
+        });
+        paint();
+    })();
+</script>
 </body>
 </html>

@@ -8,6 +8,8 @@
     <label>Name<input name="name" value="{{ name }}" required maxlength="200"></label>
     <label class="check"><input type="checkbox" name="is_active" {% if active %}checked{% endif %}> Active</label>
     {% if show_regenerate %}
+    <label>API key<input name="api_key" value="{{ api_key }}" maxlength="80" autocomplete="off" placeholder="Leave blank to keep the current key"></label>
+    {% if current_key != "" %}<p class="hint">Current key: <span class="mono">{{ current_key }}</span>. A value above replaces it. Leave the field blank to keep it, or use the checkbox to generate one.</p>{% else %}<p class="hint">No stored key to show. Enter one, or generate a new key below.</p>{% endif %}
     <label class="check"><input type="checkbox" name="regenerate"> Generate a new API key</label>
     {% endif %}
     <div class="filter-actions">
