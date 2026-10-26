@@ -1,0 +1,88 @@
+{% extends "shell.html" %}
+{% block title %}Log {{ request_id }} · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">Request</p>
+        <h1 class="mono">{{ method }} {{ path }}</h1>
+    </div>
+    <a class="button" href="/admin/logs">Back to logs</a>
+</header>
+<section class="summary">
+    <div><span>When</span><strong>{{ when }}</strong></div>
+    <div><span>Client</span><strong>{{ client }}</strong></div>
+    <div><span>Status</span><strong><span class="pill {{ status_class }}">{{ status }}</span></strong></div>
+    <div><span>ISO</span><strong class="mono">{{ iso }}</strong></div>
+    <div><span>Duration</span><strong class="{% if slow %}slow{% endif %}">{{ duration }}</strong></div>
+    <div><span>Request id</span><strong class="mono">{{ request_id }}</strong></div>
+    <div><span>IP</span><strong>{{ ip }}</strong></div>
+    {% if query != "" %}<div><span>Query</span><strong class="mono">{{ query }}</strong></div>{% endif %}
+</section>
+{% if error != "" %}<pre class="panel danger">{{ error }}</pre>{% endif %}
+{% if exception != "" %}<pre class="panel">{{ exception }}</pre>{% endif %}
+<ol class="timeline">
+    {% for step in steps %}
+    <li>
+        <div class="step-name">{{ step.name }}</div>
+        <div class="mono">{{ step.detail }}</div>
+        <div class="step-meta"><span class="pill {{ step.status_class }}">{{ step.status }}</span><span>{{ step.duration }}</span></div>
+    </li>
+    {% endfor %}
+</ol>
+<section class="split">
+    <article>
+        <h2>Request</h2>
+        <pre class="panel">{{ request_pretty }}</pre>
+        <details><summary>Raw</summary><pre class="panel">{{ request_raw }}</pre></details>
+    </article>
+    <article>
+        <h2>Response</h2>
+        <pre class="panel">{{ response_pretty }}</pre>
+        <details><summary>Raw</summary><pre class="panel">{{ response_raw }}</pre></details>
+    </article>
+</section>
+<section>
+    <h2>PremiumCBS body</h2>
+    <pre class="panel">{{ upstream_pretty }}</pre>
+    <details><summary>Raw</summary><pre class="panel">{{ upstream_raw }}</pre></details>
+</section>
+<section>
+    <div class="section-head"><h2>Headers</h2></div>
+    <table>
+        <tbody>
+        {% for header in headers %}
+        <tr><th>{{ header.name }}</th><td class="mono">{{ header.value }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+<section>
+    <div class="section-head">
+        <h2>Copy as curl</h2>
+        <button type="button" class="button" data-copy="curl-box">Copy</button>
+    </div>
+    <textarea id="curl-box" readonly>{{ curl }}</textarea>
+</section>
+{% if related.len() > 0 %}
+<section>
+    <h2>Related</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Time</th><th>Client</th><th>Path</th><th>Status</th><th>ISO</th><th>Account / tran</th></tr></thead>
+            <tbody>
+            {% for row in related %}
+            <tr class="{% if row.error %}is-error{% endif %}">
+                <td><a href="{{ row.href }}">{{ row.when }}</a></td>
+                <td>{{ row.client }}</td>
+                <td class="mono">{{ row.path }}</td>
+                <td><span class="pill {{ row.status_class }}">{{ row.status }}</span></td>
+                <td class="mono">{{ row.iso }}</td>
+                <td class="mono">{{ row.account }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

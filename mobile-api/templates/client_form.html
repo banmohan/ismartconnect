@@ -1,0 +1,18 @@
+{% extends "shell.html" %}
+{% block title %}{{ title }} · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head"><h1>{{ title }}</h1></header>
+{% if error != "" %}<div class="alert">{{ error }}</div>{% endif %}
+<form method="post" action="{{ action }}" class="stack narrow">
+    <label>Client code<input name="code" value="{{ code }}" required maxlength="100"></label>
+    <label>Name<input name="name" value="{{ name }}" required maxlength="200"></label>
+    <label class="check"><input type="checkbox" name="is_active" {% if active %}checked{% endif %}> Active</label>
+    {% if show_regenerate %}
+    <label class="check"><input type="checkbox" name="regenerate"> Generate a new API key</label>
+    {% endif %}
+    <div class="filter-actions">
+        <button class="primary" type="submit">Save</button>
+        <a class="button" href="/admin/clients">Cancel</a>
+    </div>
+</form>
+{% endblock %}

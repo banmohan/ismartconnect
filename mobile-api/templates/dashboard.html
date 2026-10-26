@@ -1,0 +1,105 @@
+{% extends "shell.html" %}
+{% block title %}Dashboard · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">UTC {{ today }}</p>
+        <h1>Today</h1>
+    </div>
+</header>
+<section class="kpis">
+    <article><span>Requests</span><strong>{{ requests }}</strong></article>
+    <article><span>Failed</span><strong>{{ failed }}</strong></article>
+    <article><span>Success</span><strong>{{ success }}%</strong></article>
+    <article><span>Avg</span><strong>{{ avg_ms }}<small> ms</small></strong></article>
+    <article><span>p95</span><strong>{{ p95_ms }}<small> ms</small></strong></article>
+</section>
+<section class="columns">
+    <article class="card">
+        <h2>Volume by client</h2>
+        {% if bars.is_empty() %}<p class="empty">No client traffic today.</p>{% endif %}
+        {% for bar in bars %}
+        <div class="bar-row">
+            <div class="bar-label"><span>{{ bar.label }}</span><span>{{ bar.total }}{% if bar.failed > 0 %} · {{ bar.failed }} failed{% endif %}</span></div>
+            <div class="bar"><span style="width: {{ bar.width }}%"></span></div>
+        </div>
+        {% endfor %}
+    </article>
+    <article class="card">
+        <h2>Needs attention</h2>
+        {% if attention.is_empty() %}<p class="empty">No client has five failures in a row.</p>{% endif %}
+        {% for item in attention %}
+        <div class="attention">
+            <strong>{{ item.code }}</strong> <span class="muted">{{ item.name }}</span>
+            <div class="mono">{{ item.path }}</div>
+            <div>{{ item.error }}</div>
+            <div class="muted">{{ item.when }} UTC · <a href="/admin/logs?client_code={{ item.code }}&is_error=true">view logs</a></div>
+        </div>
+        {% endfor %}
+    </article>
+</section>
+<section class="columns">
+    <article class="card">
+        <h2>Failures by ISO</h2>
+        {% if iso_failures.is_empty() %}<p class="empty">No failures today.</p>{% endif %}
+        <ul class="plain">
+        {% for item in iso_failures %}
+            <li><span class="mono">{{ item.code }}</span><strong>{{ item.count }}</strong></li>
+        {% endfor %}
+        </ul>
+    </article>
+    <article class="card">
+        <h2>Top failing paths</h2>
+        {% if failing.is_empty() %}<p class="empty">No failing paths today.</p>{% endif %}
+        <ul class="plain">
+        {% for item in failing %}
+            <li><span class="mono">{{ item.path }}</span><strong>{{ item.count }}</strong></li>
+        {% endfor %}
+        </ul>
+    </article>
+</section>
+<section class="card">
+    <div class="section-head">
+        <h2>Clients</h2>
+        <span class="muted">page {{ client_page }} of {{ client_pages }}</span>
+    </div>
+    <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Status</th><th>Today</th><th>Failed</th></tr></thead>
+        <tbody>
+        {% for client in clients %}
+        <tr>
+            <td><a href="/admin/logs?client_code={{ client.code }}">{{ client.code }}</a></td>
+            <td>{{ client.name }}</td>
+            <td>{% if client.active %}Active{% else %}Disabled{% endif %}</td>
+            <td>{{ client.requests }}</td>
+            <td>{{ client.failed }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <nav class="pager">
+        {% if client_page > 1 %}<a href="/admin?client_page={{ client_page - 1 }}">Prev</a>{% endif %}
+        {% if client_page < client_pages %}<a href="/admin?client_page={{ client_page + 1 }}">Next</a>{% endif %}
+    </nav>
+</section>
+<section class="card">
+    <h2>Recent errors</h2>
+    {% if recent.is_empty() %}<p class="empty">No errors recorded.</p>{% endif %}
+    <table>
+        <thead><tr><th>Time</th><th>Client</th><th>Path</th><th>Status</th><th>ISO</th><th>Error</th></tr></thead>
+        <tbody>
+        {% for item in recent %}
+        <tr>
+            <td><a href="{{ item.href }}">{{ item.when }}</a></td>
+            <td>{{ item.client }}</td>
+            <td class="mono">{{ item.path }}</td>
+            <td>{{ item.status }}</td>
+            <td class="mono">{{ item.iso }}</td>
+            <td>{{ item.error }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+<p class="hint">Dropped log rows since start: {{ dropped }}. A full writer queue discards the row and still returns the banking response.</p>
+{% endblock %}

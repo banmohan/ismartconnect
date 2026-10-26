@@ -1,0 +1,54 @@
+{% extends "shell.html" %}
+{% block title %}Clients · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">Access</p>
+        <h1>Clients</h1>
+    </div>
+    {% if shell.admin %}<a class="primary button" href="/admin/clients/new">New client</a>{% endif %}
+</header>
+{% if shell.admin %}
+<p class="hint">Each client is a provider. The API key stays on this page for admins. A key created earlier, when only a hash was stored, shows as unavailable until you regenerate it.</p>
+{% else %}
+<p class="hint">Each client is a provider. API keys and client changes are limited to admins.</p>
+{% endif %}
+<table>
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            {% if shell.admin %}<th>API key</th>{% endif %}
+            <th>Status</th>
+            <th>Updated</th>
+            {% if shell.admin %}<th></th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+    {% if clients.is_empty() %}
+    <tr><td colspan="{% if shell.admin %}6{% else %}4{% endif %}" class="empty">No clients yet.</td></tr>
+    {% endif %}
+    {% for client in clients %}
+    <tr>
+        <td class="mono">{{ client.code }}</td>
+        <td>{{ client.name }}</td>
+        {% if shell.admin %}
+        <td>
+            {% if client.api_key != "" %}
+            <div class="key-cell">
+                <span class="mono" id="key-{{ client.id }}">{{ client.api_key }}</span>
+                <button type="button" class="linkish" data-copy="key-{{ client.id }}">Copy</button>
+            </div>
+            {% else %}
+            <span class="muted">Unavailable. Regenerate to view.</span>
+            {% endif %}
+        </td>
+        {% endif %}
+        <td>{% if client.active %}Active{% else %}Disabled{% endif %}</td>
+        <td>{{ client.updated }}</td>
+        {% if shell.admin %}<td><a href="/admin/clients/{{ client.id }}/edit">Edit</a></td>{% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

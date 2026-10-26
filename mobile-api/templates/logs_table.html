@@ -1,0 +1,50 @@
+<div class="table-meta">
+    <span>{{ total }} matching</span>
+    {% if pages > 0 %}<span>page {{ page }} of {{ pages }}</span>{% endif %}
+</div>
+<div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>Time (UTC)</th>
+            <th>Client</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Status</th>
+            <th>ISO</th>
+            <th>ms</th>
+            <th>Account / tran</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if rows.is_empty() %}
+        <tr><td colspan="8" class="empty">No requests match these filters.</td></tr>
+        {% endif %}
+        {% for row in rows %}
+        <tr class="{% if row.error %}is-error{% endif %}">
+            <td><a href="{{ row.href }}">{{ row.when }}</a></td>
+            <td>{{ row.client }}</td>
+            <td>{{ row.method }}</td>
+            <td class="mono">{{ row.path }}</td>
+            <td><span class="pill {{ row.status_class }}">{{ row.status }}</span></td>
+            <td class="mono">{{ row.iso }}</td>
+            <td class="{% if row.slow %}slow{% endif %}">{{ row.duration }}</td>
+            <td class="mono">{{ row.account }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if links.len() > 0 %}
+<nav class="pager">
+    {% for link in links %}
+        {% if link.gap %}
+        <span class="gap">{{ link.label }}</span>
+        {% else %}
+        <a class="{% if link.current %}is-current{% endif %}" href="{{ link.href }}"
+           hx-get="{{ link.partial }}" hx-target="#log-results" hx-swap="innerHTML"
+           hx-push-url="{{ link.href }}">{{ link.label }}</a>
+        {% endif %}
+    {% endfor %}
+</nav>
+{% endif %}

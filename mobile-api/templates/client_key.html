@@ -1,0 +1,18 @@
+{% extends "shell.html" %}
+{% block title %}API key · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">{{ code }}</p>
+        <h1>{% if created %}Client created{% else %}Key rotated{% endif %}</h1>
+    </div>
+</header>
+<div class="alert">Copy this key now. It is stored as a hash and will not be shown again.</div>
+<div class="section-head">
+    <h2>API key</h2>
+    <button type="button" class="button" data-copy="api-key">Copy</button>
+</div>
+<textarea id="api-key" readonly>{{ api_key }}</textarea>
+<p class="hint">The provider sends this value in the Authorization header and <span class="mono">{{ code }}</span> in the tenant header.</p>
+<a class="button" href="/admin/clients">Back to clients</a>
+{% endblock %}

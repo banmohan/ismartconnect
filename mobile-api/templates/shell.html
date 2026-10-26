@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MobileApi{% endblock %}</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <a class="brand" href="/admin">MobileApi</a>
+        <p class="brand-sub">Provider gateway</p>
+        <nav>
+            <a class="nav-link{% if shell.nav == "dashboard" %} is-current{% endif %}" href="/admin">Dashboard</a>
+            <a class="nav-link{% if shell.nav == "logs" %} is-current{% endif %}" href="/admin/logs">Logs</a>
+            <a class="nav-link{% if shell.nav == "clients" %} is-current{% endif %}" href="/admin/clients">Clients</a>
+            <a class="nav-link{% if shell.nav == "users" %} is-current{% endif %}" href="/admin/users">Users</a>
+        </nav>
+        <div class="sidebar-foot">
+            <div class="who">{{ shell.display_name }}</div>
+            <div class="brand-sub">{{ shell.role_label }}</div>
+            <form method="post" action="/admin/logout">
+                <button type="submit" class="linkish">Log out</button>
+            </form>
+        </div>
+    </aside>
+    <main class="content">
+        {% if shell.notice != "" %}
+        <div class="notice">{{ shell.notice }}</div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+<script>
+document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-copy]");
+    if (!button) return;
+    var node = document.getElementById(button.getAttribute("data-copy"));
+    if (!node) return;
+    var text = node.value || node.textContent || "";
+    navigator.clipboard.writeText(text).then(function () {
+        var old = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(function () { button.textContent = old; }, 1200);
+    });
+});
+</script>
+</body>
+</html>

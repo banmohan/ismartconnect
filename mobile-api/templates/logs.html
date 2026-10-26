@@ -1,0 +1,55 @@
+{% extends "shell.html" %}
+{% block title %}Logs · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">Traffic</p>
+        <h1>Request logs</h1>
+    </div>
+</header>
+<form class="filters" method="get" action="/admin/logs"
+      hx-get="/admin/logs/table" hx-target="#log-results" hx-swap="innerHTML" hx-trigger="change, submit">
+    <label>Preset
+        <select name="preset">{% for choice in presets %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>From (UTC)<input type="datetime-local" name="from" value="{{ from }}"></label>
+    <label>To (UTC)<input type="datetime-local" name="to" value="{{ to }}"></label>
+    <label>Client
+        <select name="client_code">{% for choice in clients %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>Method
+        <select name="method">{% for choice in methods %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>Path<input name="path" value="{{ path }}" placeholder="/api/deposit/..."></label>
+    <label>Status<input name="status" value="{{ status }}" inputmode="numeric" placeholder="200"></label>
+    <label>Class
+        <select name="status_class">{% for choice in classes %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>ISO<input name="iso" value="{{ iso }}" placeholder="51"></label>
+    <label>Result
+        <select name="is_error">{% for choice in errors %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>Min ms<input name="min_ms" value="{{ min_ms }}" inputmode="numeric"></label>
+    <label>Max ms<input name="max_ms" value="{{ max_ms }}" inputmode="numeric"></label>
+    <label>Account<input name="account" value="{{ account }}"></label>
+    <label>Member<input name="member_id" value="{{ member_id }}"></label>
+    <label>Tran code<input name="tran_code" value="{{ tran_code }}"></label>
+    <label class="span-2">Free text<input name="q" value="{{ q }}" placeholder="account, tran code, error"></label>
+    <label>Sort
+        <select name="sort">{% for choice in sorts %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>Direction
+        <select name="dir">{% for choice in dirs %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <label>Page size
+        <select name="page_size">{% for choice in sizes %}<option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>
+    </label>
+    <input type="hidden" name="page" value="1">
+    <div class="filter-actions">
+        <button class="primary" type="submit">Apply</button>
+        <a class="button" href="/admin/logs">Reset</a>
+    </div>
+</form>
+<p class="hint">A preset overrides From and To. Free text searches the extracted index, not the raw body.</p>
+<div id="log-results">{{ table|safe }}</div>
+{% endblock %}

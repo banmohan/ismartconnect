@@ -1,0 +1,23 @@
+{% extends "shell.html" %}
+{% block title %}{{ title }} · MobileApi{% endblock %}
+{% block content %}
+<header class="page-head"><h1>{{ title }}</h1></header>
+{% if error != "" %}<div class="alert">{{ error }}</div>{% endif %}
+<form method="post" action="{{ action }}" class="stack narrow">
+    <label>Username<input name="username" value="{{ username }}" required maxlength="100"></label>
+    <label>Display name<input name="display_name" value="{{ display_name }}" required maxlength="200"></label>
+    <label>Password<input type="password" name="password" {% if password_required %}required{% endif %} minlength="8" autocomplete="new-password"></label>
+    {% if password_required %}{% else %}<p class="hint">Leave the password blank to keep the current one.</p>{% endif %}
+    <label>Role
+        <select name="role">
+            <option value="admin" {% if role == "admin" %}selected{% endif %}>Admin</option>
+            <option value="user" {% if role == "user" %}selected{% endif %}>User</option>
+        </select>
+    </label>
+    <label class="check"><input type="checkbox" name="is_active" {% if active %}checked{% endif %}> Active</label>
+    <div class="filter-actions">
+        <button class="primary" type="submit">Save</button>
+        <a class="button" href="/admin/users">Cancel</a>
+    </div>
+</form>
+{% endblock %}
