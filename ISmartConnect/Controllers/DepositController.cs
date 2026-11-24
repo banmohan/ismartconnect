@@ -112,4 +112,11 @@ public class DepositController(AccountIntercomService accountIntercom) : Control
             IsoResponseCode = "00"
         });
     }
+
+    [HttpPost("check-api")]
+    public async Task<ActionResult<ResCheckApi>> CheckApi(ReqCheckApi req)
+    {
+        var res = await accountIntercom.CheckApiAsync(req);
+        return Ok(res);
+    }
 }

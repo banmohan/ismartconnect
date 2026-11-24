@@ -72,4 +72,10 @@ public class AccountIntercomService(IMicroServiceMeta microServiceMeta, IUserMet
         const string url = "api/mbank/loan-schedule";
         return await Post<List<ResLoanSchedule>, ReqAccount>(url, model);
     }
+
+    public async Task<ResCheckApi> CheckApiAsync(ReqCheckApi model)
+    {
+        const string url = "api/mbank/check-api";
+        return await Post<ResCheckApi, ReqCheckApi>(url, model);
+    }
 }
